@@ -1,5 +1,5 @@
-import {productList} from "./utils/product-list";
-import {FilmInterface, FilmServiceInterface } from "./utils/types";
+import { productList } from "./utils/product-list";
+import { FilmInterface, FilmServiceInterface } from "./utils/types";
 
 class FilmService implements FilmServiceInterface{
   getFilmList(): Promise<FilmInterface[]> {

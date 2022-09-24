@@ -4,9 +4,9 @@ import { filmService } from "../../film-service";
 
 export const getFilmList = async () => {
     try {
-        const films = await filmService.getFilmList();
+        const products = await filmService.getFilmList();
         return sendCustomResponse({
-          films
+            products
         }, 200)
     } catch (e) {
         return sendError(e);

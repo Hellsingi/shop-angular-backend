@@ -4,7 +4,6 @@ export interface FilmInterface {
   price: number,
   description: string,
   title: string,
-  imageSrc: string,
 }
 
 export interface FilmServiceInterface {
