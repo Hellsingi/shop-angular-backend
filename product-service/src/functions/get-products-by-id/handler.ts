@@ -15,4 +15,4 @@ export const getFilmId = async (event) => {
   }
 }
 
-export const main = middyfy(getFilmId);
+export const getProductById = middyfy(getFilmId);
