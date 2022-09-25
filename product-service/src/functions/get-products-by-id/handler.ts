@@ -2,7 +2,7 @@ import { middyfy } from '@libs/lambda';
 import { sendCustomResponse, sendError } from "../../utils/responses";
 import { filmService } from '../../film-service';
 
-export const getFilmId = async (event) => {
+export const getFilmById = async (event) => {
   try {
     const filmId = await event.pathParameters.id;
     const film = await filmService.getFilmById(filmId);
@@ -15,4 +15,4 @@ export const getFilmId = async (event) => {
   }
 }
 
-export const getProductById = middyfy(getFilmId);
+export const getProductById = middyfy(getFilmById);
