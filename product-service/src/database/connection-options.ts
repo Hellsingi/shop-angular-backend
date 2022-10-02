@@ -1,10 +1,11 @@
-import { DataSourceOptions } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { FilmEntity } from '../entities/film.entity';
 import { StockEntity } from '../entities/stock.entity';
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
+
 dotenv.config();
 
-const connectionOptions: DataSourceOptions = {
+export const connectionOptions: DataSource = new DataSource({
   name: `default`,
   type: `postgres`,
   port: Number(process.env.DB_PORT),
@@ -15,6 +16,13 @@ const connectionOptions: DataSourceOptions = {
   password: process.env.DB_PASSWORD,
   entities: [FilmEntity, StockEntity],
   migrations: ['src/migrations/*.ts'],
-};
 
-export default connectionOptions;
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
+  // cli: {
+  //   migrationsDir: 'src/migrations',
+  // },
+});

@@ -1,6 +1,6 @@
 import { middyfy } from '@libs/lambda';
 import { sendCustomResponse, sendError } from '../../utils/responses';
-import { filmService } from '../../film-service';
+import { filmService } from '../../services/film-service';
 
 export const getFilmList = async () => {
   try {

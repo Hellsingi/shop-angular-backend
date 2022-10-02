@@ -8,8 +8,11 @@
     "fix": "eslint . --ext .ts --fix",
     "test": "jest",
     "service:deploy": "sls deploy",
-    "typeorm:cli": "ts-node ./node_modules/typeorm/cli -f src/database/connection-options.ts",
-    "typeorm:migration:generate": "sh -c 'ts-node ./node_modules/typeorm/cli -f src/database/connection-options.ts migration:generate ./src/migrations'"
+    "typeorm": " ./node_modules/typeorm/cli.js --config src/database/connection-options.ts",
+    "typeorm:cli": "ts-node ./node_modules/typeorm/cli -config src/database/connection-options.ts",
+    "migration:generate": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:generate -d src/database/connection-options.ts",
+    "migration:up": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:run -d src/database/connection-options.ts",
+    "migration:down": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:revert -d src/database/connection-options.ts"
   },
   "engines": {
     "node": ">=14.15.0"

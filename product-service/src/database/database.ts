@@ -1,5 +1,8 @@
 import { ConnectionManager, DataSource, getConnectionManager } from 'typeorm';
-import connectionOptions from './connection-options';
+import { FilmEntity } from '../entities/film.entity';
+import { StockEntity } from '../entities/stock.entity';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export class Database {
   private connectionManager: ConnectionManager;
@@ -19,7 +22,23 @@ export class Database {
       }
     }
 
-    const connectDB = new DataSource(connectionOptions);
+    const connectDB = new DataSource({
+      name: CONNECTION_NAME,
+      type: `postgres`,
+      port: Number(process.env.DB_PORT),
+      synchronize: false,
+      host: process.env.DB_HOST,
+      username: process.env.DB_USERNAME,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      entities: [FilmEntity, StockEntity],
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      },
+    });
+
     connectDB
       .initialize()
       .then(() => {
