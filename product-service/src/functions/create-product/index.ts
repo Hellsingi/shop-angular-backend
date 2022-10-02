@@ -1,4 +1,4 @@
-import { handlerPath } from '@libs/handlerResolver';
+import { handlerPath } from '@libs/handler-resolver';
 import schema from '@functions/create-product/schema';
 
 export default {
@@ -9,7 +9,7 @@ export default {
         method: 'post',
         path: 'products',
         request: {
-          schema: {
+          schemas: {
             'application/json': schema,
           },
         },

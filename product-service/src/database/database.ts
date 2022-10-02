@@ -1,9 +1,4 @@
-import {
-  Connection,
-  ConnectionManager,
-  createConnection,
-  getConnectionManager,
-} from 'typeorm';
+import { ConnectionManager, DataSource, getConnectionManager } from 'typeorm';
 import connectionOptions from './connection-options';
 
 export class Database {
@@ -13,17 +8,18 @@ export class Database {
     this.connectionManager = getConnectionManager();
   }
 
-  public async getConnection(): Promise<Connection> {
+  public async getConnection(): Promise<DataSource> {
     const CONNECTION_NAME = `default`;
-    let connection: Connection;
+    let connection: DataSource;
     if (this.connectionManager.has(CONNECTION_NAME)) {
       connection = this.connectionManager.get(CONNECTION_NAME);
-      if (connection.isConnected) {
-        await connection.close();
+      if (connection.isInitialized) {
+        await connection.destroy();
         console.log(`Excess connection killed`);
       }
     }
-    console.log(`Start connection`);
-    return await createConnection(connectionOptions);
+    console.log(`Start connection: ${JSON.stringify(connection)}`);
+    const myDataSource = new DataSource(connectionOptions);
+    return await myDataSource.initialize();
   }
 }

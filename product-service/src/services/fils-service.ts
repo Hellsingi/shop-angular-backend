@@ -51,6 +51,7 @@ class FilmService implements FilmServiceInterface {
       return film;
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      console.error('createFilm error:', error);
       throw error;
     } finally {
       await queryRunner.release();

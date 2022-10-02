@@ -1,5 +1,9 @@
 import type { AWS } from '@serverless/typescript';
-import { getProductsList, getProductsById } from '@functions/index';
+import {
+  getProductsList,
+  getProductsById,
+  createProduct,
+} from '@functions/index';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -33,7 +37,7 @@ const serverlessConfiguration: AWS = {
     },
   },
   // import the function via paths
-  functions: { getProductsList, getProductsById },
+  functions: { getProductsList, getProductsById, createProduct },
 };
 
 module.exports = serverlessConfiguration;
