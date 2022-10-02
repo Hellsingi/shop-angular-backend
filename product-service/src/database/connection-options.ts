@@ -1,6 +1,8 @@
 import { DataSourceOptions } from 'typeorm';
 import { FilmEntity } from '../entities/film.entity';
 import { StockEntity } from '../entities/stock.entity';
+import dotenv from "dotenv";
+dotenv.config();
 
 const connectionOptions: DataSourceOptions = {
   name: `default`,

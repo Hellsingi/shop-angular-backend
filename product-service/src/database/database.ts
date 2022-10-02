@@ -18,8 +18,17 @@ export class Database {
         console.log(`Excess connection killed`);
       }
     }
-    console.log(`Start connection: ${JSON.stringify(connection)}`);
-    const myDataSource = new DataSource(connectionOptions);
-    return await myDataSource.initialize();
+
+    const connectDB = new DataSource(connectionOptions);
+    connectDB
+      .initialize()
+      .then(() => {
+        console.log(`Data Source has been initialized`);
+      })
+      .catch((err) => {
+        console.error(`Data Source initialization error`, err);
+      });
+
+    return connectDB;
   }
 }
