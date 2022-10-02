@@ -6,6 +6,7 @@ export const getFilmById = async (event) => {
   try {
     const filmId = await event.pathParameters.id;
     const film = await filmService.getFilmById(filmId);
+    console.log(`Received film: ${JSON.stringify(film)}`);
     if (!film) {
       return sendCustomResponse({ message: 'Film not found' }, 404);
     }

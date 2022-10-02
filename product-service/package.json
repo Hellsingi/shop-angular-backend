@@ -7,7 +7,9 @@
     "lint": "eslint . --ext .ts",
     "fix": "eslint . --ext .ts --fix",
     "test": "jest",
-    "service:deploy": "sls deploy"
+    "service:deploy": "sls deploy",
+    "typeorm:cli": "ts-node ./node_modules/typeorm/cli -f src/database/connection-options.ts",
+    "typeorm:migration:generate": "sh -c 'ts-node ./node_modules/typeorm/cli -f src/database/connection-options.ts migration:generate ./src/migrations'"
   },
   "engines": {
     "node": ">=14.15.0"
@@ -15,7 +17,10 @@
   "dependencies": {
     "@middy/core": "^2.5.3",
     "@middy/http-json-body-parser": "^2.5.3",
-    "source-map-support": "^0.5.21"
+    "pg": "^8.8.0",
+    "reflect-metadata": "^0.1.13",
+    "source-map-support": "^0.5.21",
+    "typeorm": "^0.3.10"
   },
   "devDependencies": {
     "@serverless/typescript": "^3.0.0",
@@ -31,6 +36,7 @@
     "json-schema-to-ts": "^1.5.0",
     "prettier": "^2.7.1",
     "serverless": "^3.0.0",
+    "serverless-offline": "^11.0.1",
     "serverless-webpack": "^5.3.5",
     "ts-jest": "^29.0.2",
     "ts-loader": "^8.0.15",
