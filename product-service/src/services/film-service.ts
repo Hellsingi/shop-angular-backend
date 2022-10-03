@@ -15,6 +15,9 @@ class FilmService implements FilmServiceInterface {
       return await connection
         .getRepository(FilmEntity)
         .find({ relations: ['stock'] });
+    } catch (err) {
+      console.log('getFilmList Error:', err);
+      throw err;
     } finally {
       await connection.destroy();
     }
@@ -23,9 +26,13 @@ class FilmService implements FilmServiceInterface {
   async getFilmById(filmId: string): Promise<FilmEntity> {
     const connection = await this.database.getConnection();
     try {
+      console.log('getFilmById filmId:', filmId);
       return await connection
         .getRepository(FilmEntity)
         .findOne({ relations: ['stock'], where: { id: filmId } });
+    } catch (err) {
+      console.log('getFilmById Error:', err);
+      throw err;
     } finally {
       await connection.destroy();
     }
@@ -50,16 +57,17 @@ class FilmService implements FilmServiceInterface {
         await queryRunner.commitTransaction();
         film.count = count;
         return film;
-      } catch (error) {
+      } catch (err) {
         await queryRunner.rollbackTransaction();
-        console.error('createFilm error:', error);
-        throw error;
+        console.error('createFilm Error:', err);
+        throw err;
       } finally {
         await queryRunner.release();
         await connection.destroy();
       }
     } catch (error) {
       console.error('createFilm global error:', error);
+      throw error;
     }
   }
 }

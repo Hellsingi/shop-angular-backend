@@ -13,6 +13,8 @@ export class Database {
 
   public async getConnection(): Promise<DataSource> {
     const CONNECTION_NAME = `default`;
+    const { DB_HOST, DB_PORT, DB_USERNAME, DB_NAME, DB_PASSWORD } = process.env;
+
     let connection: DataSource;
     if (this.connectionManager.has(CONNECTION_NAME)) {
       connection = this.connectionManager.get(CONNECTION_NAME);
@@ -25,12 +27,12 @@ export class Database {
     const connectDB = new DataSource({
       name: CONNECTION_NAME,
       type: `postgres`,
-      port: Number(process.env.DB_PORT),
+      port: Number(DB_PORT),
       synchronize: false,
-      host: process.env.DB_HOST,
-      username: process.env.DB_USERNAME,
-      database: process.env.DB_NAME,
-      password: process.env.DB_PASSWORD,
+      host: DB_HOST,
+      username: DB_USERNAME,
+      database: DB_NAME,
+      password: DB_PASSWORD,
       entities: [FilmEntity, StockEntity],
       extra: {
         ssl: {
@@ -39,14 +41,13 @@ export class Database {
       },
     });
 
-    connectDB
-      .initialize()
-      .then(() => {
-        console.log(`Data Source has been initialized`);
-      })
-      .catch((err) => {
-        console.error(`Data Source initialization error`, err);
-      });
+    try {
+      await connectDB.initialize();
+      console.log(`Data Source has been initialized`);
+    } catch (err) {
+      console.error(`Data Source initialization error`, err);
+      throw err;
+    }
 
     return connectDB;
   }

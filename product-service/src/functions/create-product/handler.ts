@@ -8,7 +8,6 @@ export const createFilm = async (event) => {
     const body = event.body as FilmDto;
     console.log(`Create film body: ${JSON.stringify(body)}`);
     const film = await filmService.createFilm(body);
-    console.log(`Created film: ${JSON.stringify(film)}`);
     return sendCustomResponse(film, 200);
   } catch (e) {
     return sendError(e);
