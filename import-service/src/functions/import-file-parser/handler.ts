@@ -30,7 +30,6 @@ const importFileParser = async (event) => {
             .copyObject(
               Object.assign(
                 {},
-
                 {
                   ...params,
                   CopySource: `${params.Bucket}/${params.Key}`,
@@ -40,7 +39,7 @@ const importFileParser = async (event) => {
             )
             .promise();
 
-          await s3.deleteObject(params).promise;
+          await s3.deleteObject(params).promise();
 
           console.log(
             `Csv table for ${

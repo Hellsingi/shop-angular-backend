@@ -5,7 +5,7 @@ import { sendCustomResponse, sendError } from '../../utils/responses';
 
 export const importProductsFile = async (event) => {
   try {
-    const s3 = new AWS.S3({ region: 'eu-wet-1' });
+    const s3 = new AWS.S3({ region: 'eu-west-1' });
 
     const fileName = event.queryStringParameters.name;
 

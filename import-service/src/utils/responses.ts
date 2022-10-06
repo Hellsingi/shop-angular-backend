@@ -3,7 +3,7 @@ const headers = {
   'Access-Control-Allow-Credentials': true,
 };
 export const sendCustomResponse = (body: unknown, statusCode: number) => {
-  console.log('Successfully finished send response.');
+  console.log('Successfully finished');
   return {
     statusCode,
     headers,
