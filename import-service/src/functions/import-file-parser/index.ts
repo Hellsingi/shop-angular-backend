@@ -1,18 +1,18 @@
-import schema from './schema';
 import { handlerPath } from '@libs/handler-resolver';
 
 export default {
   handler: `${handlerPath(__dirname)}/handler.main`,
   events: [
     {
-      http: {
-        method: 'post',
-        path: 'hello',
-        request: {
-          schemas: {
-            'application/json': schema,
+      s3: {
+        method: process.env.BUCKET_NAME,
+        path: 's3:ObjectCreated',
+        rules: [
+          {
+            prefix: 'uploads/',
           },
-        },
+        ],
+        existing: true,
       },
     },
   ],

@@ -1,14 +1,25 @@
 import type { AWS } from '@serverless/typescript';
+import { importFileParser, importProductsFile } from '@functions/index';
+import dotenv from 'dotenv';
 
-import hello from '@functions/hello';
+dotenv.config();
+
+const { BUCKET_NAME } = process.env;
 
 const serverlessConfiguration: AWS = {
   service: 'import-service',
   frameworkVersion: '3',
-  plugins: ['serverless-esbuild'],
+  custom: {
+    webpack: {
+      webpackConfig: './webpack.config.js',
+      includeModules: { forceInclude: ['pg'] },
+    },
+  },
+  plugins: ['serverless-webpack', 'serverless-dotenv-plugin'],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
+    region: 'eu-west-1',
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -16,23 +27,63 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
+      BUCKET_NAME: BUCKET_NAME,
+    },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: 's3:ListBucket',
+        Resource: `arn:aws:s3:::${BUCKET_NAME}`,
+      },
+      {
+        Effect: 'Allow',
+        Action: 's3:*',
+        Resource: `arn:aws:s3:::${BUCKET_NAME}/*`,
+      },
+    ],
+  },
+  resources: {
+    Resources: {
+      CsvImportBucket: {
+        Type: 'AWS::S3::Bucket',
+        Properties: {
+          BucketName: BUCKET_NAME,
+          AccessControl: 'Private',
+          CorsConfiguration: {
+            CorsRules: [
+              {
+                AllowedHeaders: ['*'],
+                AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+                AllowedOrigins: ['*'],
+              },
+            ],
+          },
+        },
+      },
+      CsvImportBucketPolicy: {
+        Type: 'AWS::S3::BucketPolicy',
+        Properties: {
+          Bucket: {
+            Ref: 'CsvImportBucket',
+          },
+          PolicyDocument: {
+            Statement: {
+              Sid: 'AllowPublicRead',
+              Effect: 'Allow',
+              Action: 's3:GetObject',
+              Resource: `arn:aws:s3:::${BUCKET_NAME}/*`,
+              Principal: {
+                AWS: '*',
+              },
+            },
+          },
+        },
+      },
     },
   },
+
   // import the function via paths
-  functions: { hello },
-  package: { individually: true },
-  custom: {
-    esbuild: {
-      bundle: true,
-      minify: false,
-      sourcemap: true,
-      exclude: ['aws-sdk'],
-      target: 'node14',
-      define: { 'require.resolve': undefined },
-      platform: 'node',
-      concurrency: 10,
-    },
-  },
+  functions: { importProductsFile, importFileParser },
 };
 
 module.exports = serverlessConfiguration;
