@@ -1,8 +1,8 @@
 import type { AWS } from '@serverless/typescript';
-import { importFileParser, importProductsFile } from '@functions/index';
 import dotenv from 'dotenv';
-
 dotenv.config();
+import { importFileParser, importProductsFile } from '@functions/index';
+
 
 const { BUCKET_NAME } = process.env;
 
