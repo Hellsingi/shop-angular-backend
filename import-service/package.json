@@ -7,6 +7,7 @@
     "lint": "eslint . --ext .ts",
     "fix": "eslint . --ext .ts --fix",
     "test": "jest",
+    "service:offline": "sls offline",
     "service:deploy": "sls deploy"
   },
   "engines": {
@@ -36,6 +37,7 @@
     "prettier": "^2.7.1",
     "serverless": "^3.0.0",
     "serverless-dotenv-plugin": "^4.0.2",
+    "serverless-offline": "^11.0.3",
     "serverless-webpack": "^5.10.0",
     "ts-jest": "^29.0.3",
     "ts-loader": "^9.4.1",

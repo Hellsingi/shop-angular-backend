@@ -3,16 +3,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { importFileParser, importProductsFile } from '@functions/index';
 
-
-const { BUCKET_NAME } = process.env;
-
 const serverlessConfiguration: AWS = {
   service: 'import-service',
   frameworkVersion: '3',
   custom: {
     webpack: {
       webpackConfig: './webpack.config.js',
-      includeModules: { forceInclude: ['pg'] },
+      includeModules: true,
     },
   },
   plugins: ['serverless-webpack', 'serverless-dotenv-plugin'],
@@ -26,19 +23,19 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
-      BUCKET_NAME: BUCKET_NAME,
+      BUCKET_NAME: process.env.BUCKET_NAME,
     },
+    lambdaHashingVersion: '20201221',
     iamRoleStatements: [
       {
         Effect: 'Allow',
         Action: 's3:ListBucket',
-        Resource: `arn:aws:s3:::${BUCKET_NAME}`,
+        Resource: `arn:aws:s3:::${process.env.BUCKET_NAME}`,
       },
       {
         Effect: 'Allow',
         Action: 's3:*',
-        Resource: `arn:aws:s3:::${BUCKET_NAME}/*`,
+        Resource: `arn:aws:s3:::${process.env.BUCKET_NAME}/*`,
       },
     ],
   },
@@ -47,7 +44,7 @@ const serverlessConfiguration: AWS = {
       CsvImportBucket: {
         Type: 'AWS::S3::Bucket',
         Properties: {
-          BucketName: BUCKET_NAME,
+          BucketName: process.env.BUCKET_NAME,
           AccessControl: 'Private',
           CorsConfiguration: {
             CorsRules: [
@@ -71,7 +68,7 @@ const serverlessConfiguration: AWS = {
               Sid: 'AllowPublicRead',
               Effect: 'Allow',
               Action: 's3:GetObject',
-              Resource: `arn:aws:s3:::${BUCKET_NAME}/*`,
+              Resource: `arn:aws:s3:::${process.env.BUCKET_NAME}/*`,
               Principal: {
                 AWS: '*',
               },
