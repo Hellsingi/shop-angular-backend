@@ -1,55 +1,75 @@
-import 'source-map-support/register';
-import { middyfy } from '@libs/lambda';
-import { sendCustomResponse, sendError } from '../../utils/responses';
 import * as AWS from 'aws-sdk';
-import csvParser from 'csv-parser';
+import * as csvParser from 'csv-parser';
+import 'source-map-support/register';
+import { S3Event, S3Handler } from 'aws-lambda';
+import { middyfy } from '@libs/lambda';
+import { Readable } from 'stream';
+import { sendCustomResponse, sendError } from '../../utils/responses';
 
-const importFileParser = async (event) => {
+import dotenv from 'dotenv';
+dotenv.config();
+
+const { BUCKET_NAME } = process.env;
+const SOURCE_FOLDER = 'uploads';
+const TARGET_FOLDER = 'parsed';
+
+const readCsvFile = (s3: AWS.S3, source: string): Promise<Readable> => {
+  const csvReadStream = s3
+    .getObject({
+      Bucket: BUCKET_NAME,
+      Key: source,
+    })
+    .createReadStream();
+
+  csvReadStream.pipe(csvParser.default()).on('data', console.log);
+
+  return new Promise(
+    (resolve, reject): Readable =>
+      csvReadStream.on('error', reject).on('end', resolve)
+  );
+};
+
+const copyCsvFile = (s3: AWS.S3, source: string) => {
+  return s3
+    .copyObject({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${source}`,
+      Key: source.replace(SOURCE_FOLDER, TARGET_FOLDER),
+    })
+    .promise();
+};
+
+const deleteCsvFile = (s3: AWS.S3, source: string) => {
+  return s3
+    .deleteObject({
+      Bucket: BUCKET_NAME,
+      Key: source,
+    })
+    .promise();
+};
+
+const importFileParser: S3Handler = async (event: S3Event): Promise<any> => {
   try {
     const s3 = new AWS.S3({ region: 'eu-west-1' });
-    const rows = [];
-    event.Records.forEach((record) => {
-      const params = {
-        Bucket: process.env.BUCKET_NAME,
-        Key: record.s3.object.key,
-      };
 
-      s3.getObject(params)
-        .createReadStream()
-        .pipe(csvParser())
-        .on('data', (data) => {
-          console.log(`Data event: ${JSON.stringify(data)}`);
-          rows.push(data);
-        })
-        .on('error', (error) => {
-          console.log('pipe error:', error);
-        })
-        .on('end', async () => {
-          console.log(`End event data: ${JSON.stringify(rows)}`);
-          await s3
-            .copyObject(
-              Object.assign(
-                {},
-                {
-                  ...params,
-                  CopySource: `${params.Bucket}/${params.Key}`,
-                  Key: params.Key.replace('uploads', 'parsed'),
-                }
-              )
-            )
-            .promise();
+    for (const record of event.Records) {
+      const source = decodeURIComponent(
+        record.s3.object.key.replace(/\+/g, ' ')
+      );
 
-          await s3.deleteObject(params).promise();
+      const fileName = source.replace(`${SOURCE_FOLDER}/`, '');
 
-          console.log(
-            `Csv table for ${
-              params.Key.split('/')[1]
-            } is created in parsed folder`
-          );
-        });
-    });
+      await readCsvFile(s3, source);
+      await copyCsvFile(s3, source);
+      await deleteCsvFile(s3, source);
+
+      console.log(
+        `File ${fileName} was moved from /${SOURCE_FOLDER} to /${TARGET_FOLDER}`
+      );
+    }
     return sendCustomResponse({ message: 'OK' }, 200);
   } catch (error) {
+    console.log('ImportFileParser error:', JSON.stringify(error));
     return sendError(error);
   }
 };

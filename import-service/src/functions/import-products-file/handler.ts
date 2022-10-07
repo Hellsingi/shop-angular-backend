@@ -15,7 +15,7 @@ export const importProductsFile = async (event) => {
       Key: path,
       ContentType: 'text/csv',
     };
-    console.log(params);
+    console.log('importProductsFile params:', params);
     const url = await s3.getSignedUrlPromise('putObject', params);
     return sendCustomResponse({ url }, 200);
   } catch (error) {
