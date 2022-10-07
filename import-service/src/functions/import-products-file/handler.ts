@@ -2,6 +2,10 @@ import 'source-map-support/register';
 import * as AWS from 'aws-sdk';
 import { middyfy } from '@libs/lambda';
 import { sendCustomResponse, sendError } from '../../utils/responses';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const { BUCKET_NAME, SOURCE_FOLDER } = process.env;
 
 export const importProductsFile = async (event) => {
   try {
@@ -9,9 +13,9 @@ export const importProductsFile = async (event) => {
 
     const fileName = event.queryStringParameters.name;
 
-    const path = `uploads/${fileName}`;
+    const path = `${SOURCE_FOLDER}/${fileName}`;
     const params = {
-      Bucket: process.env.BUCKET_NAME,
+      Bucket: BUCKET_NAME,
       Key: path,
       ContentType: 'text/csv',
     };

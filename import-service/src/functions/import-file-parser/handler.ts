@@ -9,9 +9,7 @@ import { sendCustomResponse, sendError } from '../../utils/responses';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const { BUCKET_NAME } = process.env;
-const SOURCE_FOLDER = 'uploads';
-const TARGET_FOLDER = 'parsed';
+const { BUCKET_NAME, SOURCE_FOLDER, TARGET_FOLDER } = process.env;
 
 const readCsvFile = (s3: AWS.S3, source: string): Promise<Readable> => {
   const csvReadStream = s3

@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { importFileParser, importProductsFile } from '@functions/index';
 
+const { BUCKET_NAME } = process.env;
+
 const serverlessConfiguration: AWS = {
   service: 'import-service',
   frameworkVersion: '3',
@@ -23,19 +25,18 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      BUCKET_NAME: process.env.BUCKET_NAME,
+      BUCKET_NAME: BUCKET_NAME,
     },
-    lambdaHashingVersion: '20201221',
     iamRoleStatements: [
       {
         Effect: 'Allow',
         Action: 's3:ListBucket',
-        Resource: `arn:aws:s3:::${process.env.BUCKET_NAME}`,
+        Resource: `arn:aws:s3:::${BUCKET_NAME}`,
       },
       {
         Effect: 'Allow',
         Action: 's3:*',
-        Resource: `arn:aws:s3:::${process.env.BUCKET_NAME}/*`,
+        Resource: `arn:aws:s3:::${BUCKET_NAME}/*`,
       },
     ],
   },
@@ -44,7 +45,7 @@ const serverlessConfiguration: AWS = {
       CsvImportBucket: {
         Type: 'AWS::S3::Bucket',
         Properties: {
-          BucketName: process.env.BUCKET_NAME,
+          BucketName: BUCKET_NAME,
           AccessControl: 'Private',
           CorsConfiguration: {
             CorsRules: [
@@ -68,7 +69,7 @@ const serverlessConfiguration: AWS = {
               Sid: 'AllowPublicRead',
               Effect: 'Allow',
               Action: 's3:GetObject',
-              Resource: `arn:aws:s3:::${process.env.BUCKET_NAME}/*`,
+              Resource: `arn:aws:s3:::${BUCKET_NAME}/*`,
               Principal: {
                 AWS: '*',
               },
