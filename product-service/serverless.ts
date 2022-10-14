@@ -32,7 +32,6 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       PG_HOST: process.env.DB_HOST,
       PG_PORT: process.env.DB_PORT,
       PG_DATABASE: process.env.DB_NAME,
@@ -40,8 +39,6 @@ const serverlessConfiguration: AWS = {
       PG_PASSWORD: process.env.DB_PASSWORD,
       SNS_TOPIC_NAME: process.env.SNS_TOPIC_NAME,
       SNS_SUBSCRIPTION_EMAIL: process.env.SNS_SUBSCRIPTION_EMAIL,
-      SNS_SUBSCRIPTION_EMAIL_FILTER_COUNT:
-        process.env.SNS_SUBSCRIPTION_EMAIL_FILTER_COUNT,
       SNS_TOPIC_ARN: {
         Ref: 'SNSTopic',
       },
