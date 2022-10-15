@@ -44,4 +44,4 @@ export const catalogBatchProcess: SQSHandler = async (event) => {
   }
 };
 
-export const main = middyfy(catalogBatchProcess);
+export const catalogBatch = middyfy(catalogBatchProcess);
