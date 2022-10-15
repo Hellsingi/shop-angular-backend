@@ -12,5 +12,4 @@ export class new1665853718817 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "stock" DROP CONSTRAINT "FK_602b8150a4707dab6afaacf8387"`);
         await queryRunner.query(`ALTER TABLE "stock" ADD CONSTRAINT "FK_602b8150a4707dab6afaacf8387" FOREIGN KEY ("filmId") REFERENCES "film"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     }
-
 }
