@@ -8,7 +8,7 @@ export const handleSingleProductProcess = async (
   recordBody: string
 ) => {
   try {
-    const filmCreated = await filmService.createCard(JSON.parse(recordBody));
+    const filmCreated = await filmService.createFilm(JSON.parse(recordBody));
     console.log(`Film created: ${recordBody}`);
     const response = await sns
       .publish({

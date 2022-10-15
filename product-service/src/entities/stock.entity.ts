@@ -16,7 +16,7 @@ export class StockEntity extends BaseEntity {
   @Column()
   count: number;
 
-  @OneToOne(() => FilmEntity, (film) => film.stock)
+  @OneToOne(() => FilmEntity, (film) => film.stock, { onDelete: 'CASCADE' })
   @JoinColumn()
   film: FilmEntity;
 

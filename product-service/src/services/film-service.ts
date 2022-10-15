@@ -23,7 +23,7 @@ class FilmService implements FilmServiceInterface {
     }
   }
 
-  async getFilmById(filmId: string): Promise<FilmEntity> {
+  async getFilmById(filmId: string): Promise<FilmEntity | undefined> {
     const connection = await this.database.getConnection();
     try {
       console.log('getFilmById filmId:', filmId);
@@ -46,14 +46,12 @@ class FilmService implements FilmServiceInterface {
       await queryRunner.startTransaction();
       try {
         const { title, description, price, count } = body;
-        const film = connection
+        const film = await connection
           .getRepository(FilmEntity)
-          .create({ title, description, price });
-        await film.save();
-        const stock = queryRunner.manager
+          .save({ title, description, price });
+        queryRunner.manager
           .getRepository(StockEntity)
-          .create({ count, filmId: film.id });
-        await stock.save();
+          .save({ count, filmId: film.id });
         await queryRunner.commitTransaction();
         film.count = count;
         return film;

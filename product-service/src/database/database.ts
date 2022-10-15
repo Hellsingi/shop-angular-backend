@@ -16,6 +16,7 @@ export class Database {
     const { DB_HOST, DB_PORT, DB_USERNAME, DB_NAME, DB_PASSWORD } = process.env;
 
     let connection: DataSource;
+
     if (this.connectionManager.has(CONNECTION_NAME)) {
       connection = this.connectionManager.get(CONNECTION_NAME);
       if (connection.isInitialized) {
