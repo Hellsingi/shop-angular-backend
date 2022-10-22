@@ -1,17 +1,23 @@
 import * as AWS from 'aws-sdk';
-import * as csvParser from 'csv-parser';
+import csv from 'csv-parser';
 import 'source-map-support/register';
 import { S3Event, S3Handler } from 'aws-lambda';
 import { middyfy } from '@libs/lambda';
-import { Readable } from 'stream';
+import { Transform } from 'stream';
+import { SQS } from 'aws-sdk';
 import { sendCustomResponse, sendError } from '../../utils/responses';
 
 import dotenv from 'dotenv';
 dotenv.config();
 
-const { BUCKET_NAME, SOURCE_FOLDER, TARGET_FOLDER } = process.env;
+const { BUCKET_NAME, SOURCE_FOLDER, TARGET_FOLDER, SQS_QUEUE_URL } =
+  process.env;
 
-const readCsvFile = (s3: AWS.S3, source: string): Promise<Readable> => {
+const sendRecordsToQueue = (
+  s3: AWS.S3,
+  source: string,
+  sqs: SQS
+): Promise<Transform> => {
   const csvReadStream = s3
     .getObject({
       Bucket: BUCKET_NAME,
@@ -19,11 +25,28 @@ const readCsvFile = (s3: AWS.S3, source: string): Promise<Readable> => {
     })
     .createReadStream();
 
-  csvReadStream.pipe(csvParser.default()).on('data', console.log);
+  const transformRecordsStream = csvReadStream.pipe(csv());
+
+  transformRecordsStream.on('data', (parsedRecord) => {
+    console.log('sendRecordsToQueue parsedRecord:', parsedRecord);
+    sqs.sendMessage(
+      {
+        MessageBody: JSON.stringify(parsedRecord),
+        QueueUrl: SQS_QUEUE_URL,
+      },
+      (err, data) => {
+        if (err) {
+          console.error('transformRecordsStream error:', err);
+          return;
+        }
+        console.log('transformRecordsStream data:', data);
+      }
+    );
+  });
 
   return new Promise(
-    (resolve, reject): Readable =>
-      csvReadStream.on('error', reject).on('end', resolve)
+    (resolve, reject): Transform =>
+      transformRecordsStream.on('error', reject).on('end', resolve)
   );
 };
 
@@ -49,6 +72,7 @@ const deleteCsvFile = (s3: AWS.S3, source: string) => {
 const importFileParser: S3Handler = async (event: S3Event): Promise<any> => {
   try {
     const s3 = new AWS.S3({ region: 'eu-west-1' });
+    const sqs = new SQS();
 
     for (const record of event.Records) {
       const source = decodeURIComponent(
@@ -57,7 +81,7 @@ const importFileParser: S3Handler = async (event: S3Event): Promise<any> => {
 
       const fileName = source.replace(`${SOURCE_FOLDER}/`, '');
 
-      await readCsvFile(s3, source);
+      await sendRecordsToQueue(s3, source, sqs);
       await copyCsvFile(s3, source);
       await deleteCsvFile(s3, source);
 

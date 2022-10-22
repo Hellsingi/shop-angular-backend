@@ -1,17 +1,17 @@
-import { getFilmById } from '@functions/get-products-by-id/handler';
-import { filmService } from '../../film-service';
+import { getFilmById } from '@functions/get-product-by-id/handler';
+import { filmService } from '../../services/film-service';
 
 const mockResult = {
-  count: 4,
+  count: 13,
   description: 'Short Film  Description1',
-  id: '1',
-  price: 2.4,
+  id: '3aa94e93-c9f6-4f51-8aef-74ae43d0d246',
+  price: 2,
   title: 'Film One',
 };
 
 const event = {
   pathParameters: {
-    id: '1',
+    id: '3aa94e93-c9f6-4f51-8aef-74ae43d0d246',
   },
 };
 
@@ -23,12 +23,12 @@ describe('get film by id tests', () => {
   });
 
   it('should get an error with wrong film id', async () => {
-    const event = {
+    const eventFalse = {
       pathParameters: {
-        id: 'over9000',
+        id: '3aa94e93-c9f6-4f51-8aef-74ae43d0d266',
       },
     };
-    const result = await getFilmById(event);
+    const result = await getFilmById(eventFalse);
     expect(JSON.parse(result.body)).toEqual({ message: 'Film not found' });
     expect(result.statusCode).toBe(404);
   });

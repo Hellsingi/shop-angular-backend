@@ -12,5 +12,5 @@ export interface FilmInterface {
 export interface FilmServiceInterface {
   getFilmList: () => Promise<FilmInterface[]>;
   getFilmById: (id: string) => Promise<FilmInterface>;
-  createFilm: (cardDto: FilmDto) => Promise<FilmEntity>;
+  createFilm: (filmDto: FilmDto) => Promise<FilmEntity>;
 }
