@@ -1,9 +1,26 @@
 import type { AWS } from '@serverless/typescript';
+import { GatewayResponseType } from 'aws-sdk/clients/apigateway';
 import dotenv from 'dotenv';
 dotenv.config();
 import { importFileParser, importProductsFile } from '@functions/index';
 
 const { BUCKET_NAME, SQS_QUEUE_NAME } = process.env;
+
+const enableGatewayResponseCors = (responseType: GatewayResponseType) => {
+  return {
+    Type: 'AWS::ApiGateway::GatewayResponse',
+    Properties: {
+      RestApiId: {
+        Ref: 'ApiGatewayRestApi',
+      },
+      ResponseParameters: {
+        'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+        'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+      },
+      ResponseType: responseType,
+    },
+  };
+};
 
 const serverlessConfiguration: AWS = {
   service: 'import-service',
@@ -53,6 +70,16 @@ const serverlessConfiguration: AWS = {
   },
   resources: {
     Resources: {
+      ApiGatewayRestApi: {
+        Type: 'AWS::ApiGateway::RestApi',
+        Properties: {
+          Name: {
+            'Fn::Sub': '${AWS::StackName}',
+          },
+        },
+      },
+      ResponseUnauthorized: enableGatewayResponseCors('UNAUTHORIZED'),
+      ResponseAccessDenied: enableGatewayResponseCors('ACCESS_DENIED'),
       CsvImportBucket: {
         Type: 'AWS::S3::Bucket',
         Properties: {
