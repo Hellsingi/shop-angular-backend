@@ -16,8 +16,9 @@ export default {
           },
         },
         authorizer: {
-          name: 'basicAuthorizer',
-          arn: '${cf:authorization-service-dev.basicAuthorizerArn}',
+          name: 'tokenAuthorizer',
+          arn: 'arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:authorization-service-dev-basicAuthorizer',
+          resultTtlInSeconds: 0,
           identitySource: 'method.request.header.Authorization',
           type: 'token',
         },

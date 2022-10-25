@@ -31,11 +31,16 @@ const serverlessConfiguration: AWS = {
       includeModules: true,
     },
   },
-  plugins: ['serverless-webpack', 'serverless-dotenv-plugin'],
+  plugins: [
+    'serverless-webpack',
+    'serverless-offline',
+    'serverless-pseudo-parameters',
+  ],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
     region: 'eu-west-1',
+    stage: 'dev',
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
