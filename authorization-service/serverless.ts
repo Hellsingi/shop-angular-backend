@@ -2,44 +2,46 @@ import type { AWS } from '@serverless/typescript';
 
 import basicAuthorizer from '@functions/basicAuthorizer';
 
-import * as dotenv from 'dotenv';
-dotenv.config();
-
 const serverlessConfiguration: AWS = {
   service: 'authorization-service',
   frameworkVersion: '3',
-  custom: {
-    webpack: {
-      webpackConfig: './webpack.config.js',
-      includeModules: true,
-    },
-  },
-  plugins: [
-    'serverless-webpack',
-    'serverless-dotenv-plugin',
-    'serverless-offline',
-  ],
+  plugins: ['serverless-esbuild', 'serverless-dotenv-plugin'],
   provider: {
     name: 'aws',
-    runtime: 'nodejs14.x',
+    runtime: 'nodejs16.x',
     region: 'eu-west-1',
+    stage: 'dev',
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
     },
   },
   // import the function via paths
   functions: { basicAuthorizer },
   resources: {
     Outputs: {
-      basicAuthorizerArn: {
+      AuthorizerArn: {
         Value: {
           'Fn::GetAtt': ['BasicAuthorizerLambdaFunction', 'Arn'],
         },
       },
+    },
+  },
+  package: { individually: true },
+  custom: {
+    esbuild: {
+      bundle: true,
+      minify: false,
+      sourcemap: true,
+      exclude: ['aws-sdk'],
+      target: 'node16',
+      define: { 'require.resolve': undefined },
+      platform: 'node',
+      concurrency: 10,
     },
   },
 };
